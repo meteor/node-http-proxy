@@ -76,35 +76,6 @@ describe('lib/http-proxy/passes/ws-incoming.js', function () {
     })
   });
 
-  describe('#setupSocket', function () {
-    it('Set the correct config to the socket', function () {
-      var stubSocket = {
-        setTimeout: function (num) {
-          // Simulate Socket.setTimeout()
-          socketConfig.timeout = num;
-        },
-        setNoDelay: function (bol) {
-          // Simulate Socket.setNoDelay()
-          socketConfig.nodelay = bol;
-        },
-        setKeepAlive: function (bol) {
-          // Simulate Socket.setKeepAlive()
-          socketConfig.keepalive = bol;
-        }
-      },
-      socketConfig = {
-        timeout: null,
-        nodelay: false,
-        keepalive: false
-      },
-      returnValue = httpProxy.setupSocket({}, stubSocket);
-      expect(returnValue).to.be(undefined);
-      expect(socketConfig.timeout).to.eql(0);
-      expect(socketConfig.nodelay).to.eql(true);
-      expect(socketConfig.keepalive).to.eql(true);
-    });
-  });
-
   describe('#XHeaders', function () {
     it('return if no forward request', function () {
       var returnValue = httpProxy.XHeaders({}, {}, {});
@@ -117,7 +88,9 @@ describe('lib/http-proxy/passes/ws-incoming.js', function () {
           remoteAddress: '192.168.1.2',
           remotePort: '8080'
         },
-        headers: {}
+        headers: {
+          host: '192.168.1.2:8080'
+        }
       }
       httpProxy.XHeaders(stubRequest, {}, { xfwd: true });
       expect(stubRequest.headers['x-forwarded-for']).to.be('192.168.1.2');
@@ -134,7 +107,9 @@ describe('lib/http-proxy/passes/ws-incoming.js', function () {
         connection: {
           pair: true
         },
-        headers: {}
+        headers: {
+          host: '192.168.1.3:8181'
+        }
       };
       httpProxy.XHeaders(stubRequest, {}, { xfwd: true });
       expect(stubRequest.headers['x-forwarded-for']).to.be('192.168.1.3');
